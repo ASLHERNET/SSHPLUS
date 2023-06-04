@@ -22,26 +22,26 @@ menu() {
 criarteste() {
   [[ $(grep -wc ${callback_query_from_id} permitidos) != '0' ]] && {
     usuario=$(echo teste$(( RANDOM% + 99999 )))
-    senha=$((RANDOM% + 99999))
+    CLAVE=$((RANDOM% + 99999))
     limite='1'
     tempo='2'
     tuserdate=$(date '+%C%y/%m/%d' -d " +1 days")
     useradd -M -N -s /bin/false $usuario -e $tuserdate > /dev/null 2>&1
-    (echo "$senha";echo "$senha") | passwd $usuario > /dev/null 2>&1
-    echo "$senha" > /etc/SSHPlus/senha/$usuario
+    (echo "$CLAVE";echo "$CLAVE") | passwd $usuario > /dev/null 2>&1
+    echo "$CLAVE" > /etc/SSHPlus/CLAVE/$usuario
     echo "$usuario $limite" >> /root/usuarios.db
     echo "#!/bin/bash
 pkill -f "$usuario"
 userdel --force $usuario
 grep -v ^$usuario[[:space:]] /root/usuarios.db > /tmp/ph ; cat /tmp/ph > /root/usuarios.db
-rm /etc/SSHPlus/senha/$usuario > /dev/null 2>&1
+rm /etc/SSHPlus/CLAVE/$usuario > /dev/null 2>&1
 rm -rf /etc/SSHPlus/userteste/$usuario.sh" > /etc/SSHPlus/userteste/$usuario.sh
     chmod +x /etc/SSHPlus/userteste/$usuario.sh
     at -f /etc/SSHPlus/userteste/$usuario.sh now + $tempo hour > /dev/null 2>&1
     echo ${callback_query_from_id} >> lista
     # - ENVIA O SSH
     ShellBot.sendMessage --chat_id ${callback_query_message_chat_id} \
-    --text "$(echo -e "✅ <b>Criado com sucesso</b> ✅\n\nIP: $(cat /etc/IP)\nUSUARIO: <code>$usuario</code>\nSENHA: <code>$senha</code>\n\n⏳ Expira em: $tempo Horas")" \
+    --text "$(echo -e "✅ <b>Criado com sucesso</b> ✅\n\nIP: $(cat /etc/IP)\nUSUARIO: <code>$usuario</code>\nCLAVE: <code>$CLAVE</code>\n\n⏳ Expira em: $tempo Horas")" \
     --parse_mode html
     return 0
   }
@@ -53,7 +53,7 @@ rm -rf /etc/SSHPlus/userteste/$usuario.sh" > /etc/SSHPlus/userteste/$usuario.sh
 criar_user ()
 {
 usuario=$1
-senha=$2
+CLAVE=$2
 data=$3
 limite=$4
 ip=$(wget -qO- ssh-plus.tk/meuip.php)
@@ -64,7 +64,7 @@ msg_ex="━━━━━━━━━━━━━━━━━━━━━━\n"
 msg_ex+="<b>Para criar usuario siga o Exemplo</b>\n"
 msg_ex+="━━━━━━━━━━━━━━━━━━━━━━\n\n"
 msg_ex+="Exemplo\n"
-msg_ex+="<i>Comando nome senha dias limite</i>\n\n"
+msg_ex+="<i>Comando nome CLAVE dias limite</i>\n\n"
 msg_ex+="/criarusuario crazy 123 30 1"
 
 if awk -F : '$3 >= 1000 { print $1 }' /etc/passwd |grep $usuario 1>/dev/null 2>/dev/null; then
@@ -80,10 +80,10 @@ if [[ -z $usuario ]]
 	--parse_mode html
 	break
 fi
-if [[ -z $senha ]]
+if [[ -z $CLAVE ]]
 	then
 	ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
-	--text "$(echo -e Erro! senha vazia ou invalida)" \
+	--text "$(echo -e Erro! CLAVE vazia ou invalida)" \
 	--parse_mode html
 	ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
 	--text "$(echo -e $msg_ex)" \
@@ -112,19 +112,19 @@ if [[ -z $limite ]]
 fi
 if useradd -M -N -s /bin/false $usuario -e $validade > /dev/null 2>/dev/null
     then
-        if (echo "$senha";echo "$senha") | passwd $usuario 1>/dev/null 2>/dev/null
+        if (echo "$CLAVE";echo "$CLAVE") | passwd $usuario 1>/dev/null 2>/dev/null
         	then
         	info_data=$(date '+%d/%m/%C%y' -d " +$data days")
-        	echo "$usuario:$senha:$info_data:$limite" > /etc/bot/info-users/$usuario
+        	echo "$usuario:$CLAVE:$info_data:$limite" > /etc/bot/info-users/$usuario
             limite $usuario $limite
         	echo "$usuario $limite" >> /root/usuarios.db
-            echo "$senha" > /etc/SSHPlus/senha/$usuario
+            echo "$CLAVE" > /etc/SSHPlus/CLAVE/$usuario
 
         	local sucess
         	sucess='<b>Conta SSH Criada</b>\n\n'
         	sucess+="<b>IP:</b> $ip\n"
         	sucess+="<b>Usuario:</b> $usuario\n"
-        	sucess+="<b>Senha:</b> $senha\n"
+        	sucess+="<b>CLAVE:</b> $CLAVE\n"
         	sucess+="<b>Limite:</b> $limite\n"
         	sucess+="<b>Expira:</b> $exp"
         	ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
@@ -133,7 +133,7 @@ if useradd -M -N -s /bin/false $usuario -e $validade > /dev/null 2>/dev/null
         	break
         else
         	ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
-        	--text "$(echo -e <b>Senha invalida !</b>)" \
+        	--text "$(echo -e <b>CLAVE invalida !</b>)" \
         	--parse_mode html
         	ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
         	--text "$(echo -e $msg_ex)" \
@@ -162,7 +162,7 @@ criaruser() {
 
     IP=$(cat /etc/IP)
     usuario=$(echo user$(( RANDOM% + 99999 )))
-    senha=$((RANDOM% + 99999))
+    CLAVE=$((RANDOM% + 99999))
     limite='1'
     dias='31'
     [[ "$(grep -wc $usuario /etc/passwd)" != '0' ]] && {
@@ -172,16 +172,16 @@ criaruser() {
     }
     final=$(date "+%Y-%m-%d" -d "+$dias days")
     gui=$(date "+%d/%m/%Y" -d "+$dias days")
-    pass=$(perl -e 'print crypt($ARGV[0], "password")' $senha)
+    pass=$(perl -e 'print crypt($ARGV[0], "password")' $CLAVE)
     useradd -e $final -M -s /bin/false -p $pass $usuario >/dev/null 2>&1 &
     echo "$usuario $limite" >>/root/usuarios.db
-    echo "$senha" >/etc/SSHPlus/senha/$usuario
-    echo "usuario $usuario $validade $senha criado"
-    echo "$usuario:$senha:$info_data:$limite" >$HOME/BOT/revenda/$user/usuarios/$usuario
+    echo "$CLAVE" >/etc/SSHPlus/CLAVE/$usuario
+    echo "usuario $usuario $validade $CLAVE criado"
+    echo "$usuario:$CLAVE:$info_data:$limite" >$HOME/BOT/revenda/$user/usuarios/$usuario
     novolimite=$[_limTotal - padrao]
     sed -i "s/LIMITE_REVENDA: $_limTotal/LIMITE_REVENDA: $novolimite/g" $HOME/BOT/revenda/$user/$user >/dev/null 2>&1
     ShellBot.sendMessage --chat_id ${callback_query_message_chat_id} \
-    --text "$(echo -e "✅ <b>Criado com sucesso</b> ✅\n\nIP: $(cat /etc/IP)\nUSUARIO: <code>$usuario</code>\nSENHA: <code>$senha</code>\n\n⏳ Expira em: 31 Dias")" \
+    --text "$(echo -e "✅ <b>Criado com sucesso</b> ✅\n\nIP: $(cat /etc/IP)\nUSUARIO: <code>$usuario</code>\nCLAVE: <code>$CLAVE</code>\n\n⏳ Expira em: 31 Dias")" \
     --parse_mode html
     return 0
   }
